@@ -101,8 +101,7 @@
 #ifdef WASM_GENPLUS
 #define CUSTOM_BLITTER(line, width, pixel, src)  \
 { \
-    int w = width; \
-    PIXEL_OUT_T *dst = ((PIXEL_OUT_T *)&bitmap.data[(line * 2 * bitmap.pitch)]); \
+    PIXEL_OUT_T *dst = ((PIXEL_OUT_T *)&bitmap.data[(line * bitmap.pitch)]); \
     do \
     { \
         uint32_t px = pixel[*src++]; \
@@ -111,10 +110,6 @@
         uint8_t b = (px & 0x0000ff) >> 0; \
         PIXEL_OUT_T pset = (0xff << 24) | (b << 16) | (g << 8) | (r); \
         *dst = pset; \
-        *(dst + w * bitmap.pitch) = pset; \
-        dst++; \
-        *dst = pset; \
-        *(dst + w * bitmap.pitch) = pset; \
         dst++; \
     } \
     while (--width); \

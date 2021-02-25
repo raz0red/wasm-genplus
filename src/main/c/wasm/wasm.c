@@ -4,11 +4,11 @@
 #include "md_ntsc.h"
 #include "sms_ntsc.h"
 
-#define SOUND_FREQUENCY 44100
+#define SOUND_FREQUENCY 48000
 #define SOUND_SAMPLES_SIZE 2048
 
-#define VIDEO_WIDTH  640
-#define VIDEO_HEIGHT 480
+#define VIDEO_WIDTH  320 //640
+#define VIDEO_HEIGHT 224 //480
 
 #define GAMEPAD_API_INDEX 32
 

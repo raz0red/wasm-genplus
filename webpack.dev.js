@@ -14,7 +14,8 @@ module.exports = merge(common, {
         watchContentBase: false,
         port: 9000,
         open: true,
-        // host: '0.0.0.0',
-        // disableHostCheck: true
+        host: '0.0.0.0',
+        disableHostCheck: true,
+        useLocalIp: true
     }
 });
