@@ -27,7 +27,7 @@ void set_config_defaults(void)
 
   /* system options */
   config.system         = SYSTEM_MD; /* = AUTO (or SYSTEM_SG, SYSTEM_MARKIII, SYSTEM_SMS, SYSTEM_SMS2, SYSTEM_GG, SYSTEM_MD) */
-  config.region_detect  = 3;         /* = AUTO (1 = USA, 2 = EUROPE, 3 = JAPAN/NTSC, 4 = JAPAN/PAL) */
+  config.region_detect  = 0;         /* = AUTO (1 = USA, 2 = EUROPE, 3 = JAPAN/NTSC, 4 = JAPAN/PAL) */
   config.vdp_mode       = 1;         /* = AUTO (1 = NTSC, 2 = PAL) */
   config.master_clock   = 1;         /* = AUTO (1 = NTSC, 2 = PAL) */
   config.force_dtack    = 0;
@@ -51,6 +51,6 @@ void set_config_defaults(void)
   for (i=0;i<MAX_INPUTS;i++)
   {
     /* autodetected control pad type */
-    config.input[i].padtype = DEVICE_PAD2B | DEVICE_PAD3B | DEVICE_PAD6B;
+    config.input[i].padtype = /*DEVICE_PAD2B | DEVICE_PAD3B |*/ DEVICE_PAD6B;
   }
 }

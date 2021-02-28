@@ -14,7 +14,7 @@
 
 uint32_t *frame_buffer;
 int16_t *sound_frame;
-float_t *input_buffer;
+uint16_t *input_buffer;
 
 float_t *web_audio_l;
 float_t *web_audio_r;
@@ -29,7 +29,7 @@ void EMSCRIPTEN_KEEPALIVE init(void)
     sound_frame = malloc(sizeof(int16_t) * SOUND_SAMPLES_SIZE);
     web_audio_l = malloc(sizeof(float_t) * SOUND_SAMPLES_SIZE);
     web_audio_r = malloc(sizeof(float_t) * SOUND_SAMPLES_SIZE);
-    input_buffer = malloc(sizeof(float_t) * GAMEPAD_API_INDEX);
+    input_buffer = malloc(sizeof(uint16_t) * GAMEPAD_API_INDEX);
 }
 
 void EMSCRIPTEN_KEEPALIVE start(void)
@@ -83,31 +83,7 @@ int EMSCRIPTEN_KEEPALIVE sound(void) {
 }
 
 int EMSCRIPTEN_KEEPALIVE wasm_input_update(void) {
-    // reset input
-    input.pad[0] = 0;
-    // read button
-    if(input_buffer[8 + 2]) input.pad[0] |= INPUT_A;
-    if(input_buffer[8 + 3]) input.pad[0] |= INPUT_B;
-    if(input_buffer[8 + 1]) input.pad[0] |= INPUT_C;
-    if(input_buffer[8 + 7]) input.pad[0] |= INPUT_START;
-    if(input_buffer[8 + 0]) input.pad[0] |= INPUT_X;
-    if(input_buffer[8 + 4]) input.pad[0] |= INPUT_Y;
-    if(input_buffer[8 + 5]) input.pad[0] |= INPUT_Z;
-    if(input_buffer[8 + 6]) input.pad[0] |= INPUT_MODE;
-    // read axes
-    if(input_buffer[7] == -1) {
-        input.pad[0] |= INPUT_UP;
-    } else if(input_buffer[7] == 1) {
-        input.pad[0] |= INPUT_DOWN;
-    }
-    if(input_buffer[6] == -1) {
-        input.pad[0] |= INPUT_LEFT;
-    } else if(input_buffer[6] == 1) {
-        input.pad[0] |= INPUT_RIGHT;
-    }
-    // EM_ASM_({
-    //     console.log('input_buffer[4 + 7]: ' + $0);
-    // }, input_buffer[8 + 7]);
+    input.pad[0] = input_buffer[0];
     return 1;
 }
 
@@ -128,6 +104,6 @@ float_t* EMSCRIPTEN_KEEPALIVE get_web_audio_r_ref(void) {
     return web_audio_r;
 }
 
-float_t* EMSCRIPTEN_KEEPALIVE get_input_buffer_ref(void) {
+uint16_t* EMSCRIPTEN_KEEPALIVE get_input_buffer_ref(void) {
     return input_buffer;
 }
