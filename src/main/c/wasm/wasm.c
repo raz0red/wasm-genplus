@@ -8,7 +8,7 @@
 #define SOUND_SAMPLES_SIZE 2048
 
 #define VIDEO_WIDTH  320 //640
-#define VIDEO_HEIGHT 224 //480
+#define VIDEO_HEIGHT 240 //480
 
 #define GAMEPAD_API_INDEX 32
 
@@ -32,7 +32,8 @@ void EMSCRIPTEN_KEEPALIVE init(void)
     input_buffer = malloc(sizeof(uint16_t) * GAMEPAD_API_INDEX);
 }
 
-void EMSCRIPTEN_KEEPALIVE start(void)
+
+void EMSCRIPTEN_KEEPALIVE init_genplus(void)
 {
     // system init
     error_init();
@@ -44,15 +45,24 @@ void EMSCRIPTEN_KEEPALIVE start(void)
     bitmap.height     = VIDEO_HEIGHT;
     bitmap.pitch      = VIDEO_WIDTH * 4;
     bitmap.data       = (uint8_t *)frame_buffer;
-    bitmap.viewport.changed = 3;
+    bitmap.viewport.changed = 0;
 
     // load rom
     load_rom("dummy.bin");
 
-    // emurator init
-    audio_init(SOUND_FREQUENCY, 0);
+    // emulator init
+    audio_init(SOUND_FREQUENCY, vdp_pal ? 50 : 60);
     system_init();
+}
+
+void EMSCRIPTEN_KEEPALIVE reset(void)
+{
     system_reset();
+}
+
+int EMSCRIPTEN_KEEPALIVE is_pal(void)
+{
+    return vdp_pal > 0;
 }
 
 float_t convert_sample_i2f(int16_t i) {
@@ -67,8 +77,21 @@ float_t convert_sample_i2f(int16_t i) {
     return f;
 }
 
+
+static int lastWidth = 0;
+static int lastHeight = 0;
+
+EM_JS(void, SetCanvasSize, (int w, int h), {
+    window.setCanvasSize(w, h);
+});
+
 void EMSCRIPTEN_KEEPALIVE tick(void) {
     system_frame_gen(0);
+    if ((bitmap.viewport.w != lastWidth) || (bitmap.viewport.h != lastHeight)) {
+        lastWidth = bitmap.viewport.w;
+        lastHeight = bitmap.viewport.h;
+        SetCanvasSize(lastWidth, lastHeight);
+    }
 }
 
 int EMSCRIPTEN_KEEPALIVE sound(void) {
