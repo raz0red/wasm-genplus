@@ -77,7 +77,6 @@ float_t convert_sample_i2f(int16_t i) {
     return f;
 }
 
-
 static int lastWidth = 0;
 static int lastHeight = 0;
 
@@ -107,6 +106,7 @@ int EMSCRIPTEN_KEEPALIVE sound(void) {
 
 int EMSCRIPTEN_KEEPALIVE wasm_input_update(void) {
     input.pad[0] = input_buffer[0];
+    input.pad[4] = input_buffer[1];
     return 1;
 }
 

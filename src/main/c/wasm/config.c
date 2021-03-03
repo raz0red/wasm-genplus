@@ -51,6 +51,6 @@ void set_config_defaults(void)
   for (i=0;i<MAX_INPUTS;i++)
   {
     /* autodetected control pad type */
-    config.input[i].padtype = /*DEVICE_PAD2B | DEVICE_PAD3B |*/ DEVICE_PAD6B;
+    config.input[i].padtype = DEVICE_PAD6B;
   }
 }
