@@ -47,8 +47,9 @@ export class DisplayLoop {
 
         const f = () => {
             if (!this.paused) {
-                cb();
                 nextTimestamp += frameTicks;
+
+                cb();
 
                 let now = Date.now();
                 if (((nextTimestamp + adjustTolerance) < now) || this.forceAdjustTimestamp) {
@@ -81,8 +82,8 @@ export class DisplayLoop {
             }
         }
 
-        let nextTimestamp = Date.now() + frameTicks;
         this.pause(false);
-        setTimeout(() => this.sync(f, true), nextTimestamp);
+        let nextTimestamp = Date.now();
+        setTimeout(() => this.sync(f, true), 0);
     }
 }
