@@ -21,7 +21,7 @@ float_t *web_audio_r;
 
 struct _zbank_memory_map zbank_memory_map[256];
 
-void EMSCRIPTEN_KEEPALIVE init(void)
+void EMSCRIPTEN_KEEPALIVE init()
 {
     // vram & sampling malloc
     rom_buffer = malloc(sizeof(uint8_t) * MAXROMSIZE);
@@ -33,11 +33,12 @@ void EMSCRIPTEN_KEEPALIVE init(void)
 }
 
 
-void EMSCRIPTEN_KEEPALIVE init_genplus(void)
+void EMSCRIPTEN_KEEPALIVE init_genplus(int systemType)
 {
     // system init
     error_init();
     set_config_defaults();
+    config.system = systemType;
 
     // video ram init
     memset(&bitmap, 0, sizeof(bitmap));
@@ -85,8 +86,13 @@ EM_JS(void, SetCanvasSize, (int w, int h), {
 });
 
 void EMSCRIPTEN_KEEPALIVE tick(void) {
-    system_frame_gen(0);
+    if (config.system == SYSTEM_MD) {
+        system_frame_gen(0);
+    } else {
+        system_frame_sms(0);
+    }
     if ((bitmap.viewport.w != lastWidth) || (bitmap.viewport.h != lastHeight)) {
+
         lastWidth = bitmap.viewport.w;
         lastHeight = bitmap.viewport.h;
         SetCanvasSize(lastWidth, lastHeight);
