@@ -108,7 +108,7 @@ const ROM_PATH = './roms/sonic.bin';
       canvas.setAttribute('height', h);
     };
 
-    // init emuulator
+    // init emulator
     gens._init_genplus();
 
     const pal = gens._is_pal();

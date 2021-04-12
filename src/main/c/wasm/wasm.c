@@ -23,6 +23,8 @@ struct _zbank_memory_map zbank_memory_map[256];
 
 void EMSCRIPTEN_KEEPALIVE init()
 {
+    EM_ASM_({window.FS = FS;});
+
     // vram & sampling malloc
     rom_buffer = malloc(sizeof(uint8_t) * MAXROMSIZE);
     frame_buffer = malloc(sizeof(uint32_t) * VIDEO_WIDTH * VIDEO_HEIGHT);
@@ -54,6 +56,10 @@ void EMSCRIPTEN_KEEPALIVE init_genplus(int systemType)
     // emulator init
     audio_init(SOUND_FREQUENCY, vdp_pal ? 50 : 60);
     system_init();
+
+    // EM_ASM_({
+    //     console.log('sram.on: ' + $0);
+    // }, sram.on);
 }
 
 void EMSCRIPTEN_KEEPALIVE reset(void)
@@ -135,4 +141,133 @@ float_t* EMSCRIPTEN_KEEPALIVE get_web_audio_r_ref(void) {
 
 uint16_t* EMSCRIPTEN_KEEPALIVE get_input_buffer_ref(void) {
     return input_buffer;
+}
+
+#define CHUNKSIZE   (0x10000)
+#define SRAM_FILE "/tmp/game.srm"
+
+EMSCRIPTEN_KEEPALIVE int save_sram(void) {
+    EM_ASM_({console.log('save_sram');});
+
+    char* filename = SRAM_FILE;
+    unsigned long filesize, done = 0;
+    unsigned char* buffer;
+
+    /* only save if SRAM is enabled */
+    if (!sram.on) {
+        return 0;
+    }
+
+    /* max. supported SRAM size */
+    filesize = 0x10000;
+
+    /* only save modified SRAM size */
+    do {
+        if (sram.sram[filesize - 1] != 0xff)
+            break;
+    } while (--filesize > 0);
+
+    /* only save if SRAM has been modified */
+    if ((filesize == 0) || (crc32(0, &sram.sram[0], 0x10000) == sram.crc)) {
+        return 0;
+    }
+
+    /* allocate buffer */
+    buffer = (unsigned char*)malloc(filesize);
+    if (!buffer) {
+        return 0;
+    }
+
+    /* copy SRAM data */
+    memcpy(buffer, sram.sram, filesize);
+
+    /* update CRC */
+    sram.crc = crc32(0, sram.sram, 0x10000);
+
+    /* Open file */
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) {
+        free(buffer);
+        return 0;
+    }
+
+    /* Write from buffer (2k blocks) */
+    while (filesize > CHUNKSIZE) {
+        fwrite(buffer + done, CHUNKSIZE, 1, fp);
+        done += CHUNKSIZE;
+        filesize -= CHUNKSIZE;
+    }
+
+    /* Write remaining bytes */
+    fwrite(buffer + done, filesize, 1, fp);
+    done += filesize;
+
+    /* Close file */
+    fclose(fp);
+    free(buffer);
+
+    EM_ASM_({console.log('saved.');});
+
+    return 1;
+}
+
+EMSCRIPTEN_KEEPALIVE int load_sram() {
+    EM_ASM_({console.log('load_sram');});
+
+    char* filename = SRAM_FILE;
+    unsigned long filesize, done = 0;
+    unsigned char* buffer;
+
+    if (!sram.on) {
+        return 0;
+    }
+
+    /* Open file */
+    FILE* fp = fopen(filename, "rb");
+    if (!fp) {
+        return 0;
+    }
+
+    /* Get file size */
+    fseek(fp, 0, SEEK_END);
+    filesize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    /* allocate buffer */
+    buffer = (unsigned char*)malloc(filesize);
+    if (!buffer) {
+        fclose(fp);
+        return 0;
+    }
+
+    /* Read into buffer (2k blocks) */
+    while (filesize > CHUNKSIZE) {
+        fread(buffer + done, CHUNKSIZE, 1, fp);
+        done += CHUNKSIZE;
+        filesize -= CHUNKSIZE;
+    }
+
+    /* Read remaining bytes */
+    fread(buffer + done, filesize, 1, fp);
+    done += filesize;
+
+    /* Close file */
+    fclose(fp);
+
+    /* load SRAM (max. 64 KB)*/
+    if (done < 0x10000) {
+        memcpy(sram.sram, buffer, done);
+        memset(sram.sram + done, 0xFF, 0x10000 - done);
+    } else {
+        memcpy(sram.sram, buffer, 0x10000);
+    }
+
+    /* update CRC */
+    sram.crc = crc32(0, sram.sram, 0x10000);
+
+    free(buffer);
+
+    EM_ASM_({console.log('loaded.');});
+
+    return 1;
 }

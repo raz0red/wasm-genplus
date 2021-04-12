@@ -87,7 +87,8 @@ add_compile_flags(LD
     "-s ALLOW_MEMORY_GROWTH=1"
     "-s MODULARIZE=1"
     "-s TOTAL_MEMORY=32MB"
-    "-s FILESYSTEM=0"
+    "-s FORCE_FILESYSTEM=1"
+#"-s FILESYSTEM=0"
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../src/main/js)
