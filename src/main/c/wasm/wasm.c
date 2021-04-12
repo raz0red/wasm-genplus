@@ -97,10 +97,12 @@ void EMSCRIPTEN_KEEPALIVE tick(void) {
     } else {
         system_frame_sms(0);
     }
-    if ((bitmap.viewport.w != lastWidth) || (bitmap.viewport.h != lastHeight)) {
 
-        lastWidth = bitmap.viewport.w;
-        lastHeight = bitmap.viewport.h;
+    int height = bitmap.viewport.h + (bitmap.viewport.y << 1);
+    int width = bitmap.viewport.w + (bitmap.viewport.x << 1);
+    if (width != lastWidth || height != lastHeight) {
+        lastWidth = width;
+        lastHeight = height;
         SetCanvasSize(lastWidth, lastHeight);
     }
 }

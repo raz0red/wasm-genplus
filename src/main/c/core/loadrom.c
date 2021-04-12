@@ -637,7 +637,9 @@ int load_rom(char *filename)
     }
     else
 #else
-    if (config.system == SYSTEM_MD)
+    if (config.system == SYSTEM_GG) {
+        system_hw = SYSTEM_GG;
+    } else if (config.system == SYSTEM_MD)
 #endif
     {
       /* default is Mega Drive / Genesis hardware (16-bit mode) */
