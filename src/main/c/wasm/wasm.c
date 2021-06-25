@@ -35,12 +35,14 @@ void EMSCRIPTEN_KEEPALIVE init()
 }
 
 
-void EMSCRIPTEN_KEEPALIVE init_genplus(int systemType)
+void EMSCRIPTEN_KEEPALIVE init_genplus(int systemType, int region, int ym2413)
 {
     // system init
     error_init();
     set_config_defaults();
     config.system = systemType;
+    if (region != -1) config.region_detect = region;
+    if (ym2413 != -1) config.ym2413 = ym2413;
 
     // video ram init
     memset(&bitmap, 0, sizeof(bitmap));
