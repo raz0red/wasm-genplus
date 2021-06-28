@@ -34,7 +34,6 @@ void EMSCRIPTEN_KEEPALIVE init()
     input_buffer = malloc(sizeof(uint16_t) * GAMEPAD_API_INDEX);
 }
 
-
 void EMSCRIPTEN_KEEPALIVE init_genplus(int systemType, int region, int ym2413)
 {
     // system init
